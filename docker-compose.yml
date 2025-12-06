@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: incidents-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: incidents
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - incident-network
+
+  ai-engine:
+    build:
+      context: ./ai-engine
+      dockerfile: Dockerfile
+    container_name: incidents-ai
+    ports:
+      - "5000:5000"
+    networks:
+      - incident-network
+    restart: unless-stopped
+
+  backend-go:
+    build:
+      context: ./backend-go
+      dockerfile: Dockerfile
+    container_name: incidents-backend
+    depends_on:
+      - db
+      - ai-engine
+    ports:
+      - "8080:8080"
+    networks:
+      - incident-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend-react
+      dockerfile: Dockerfile
+    container_name: incidents-frontend
+    depends_on:
+      - backend-go
+    ports:
+      - "3000:3000"
+    networks:
+      - incident-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  incident-network:
+    driver: bridge
