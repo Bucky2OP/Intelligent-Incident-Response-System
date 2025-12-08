@@ -15,11 +15,9 @@ function App() {
   const [lastAction, setLastAction] = useState(null);
   const [error, setError] = useState(null);
 
-  const BACKEND_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:8080"
-    : "http://incidents-backend:8080";
-
+  // FIXED: Use the host machine's localhost since browser runs on host
+  // The backend is exposed to host on port 8080
+  const BACKEND_URL = "http://localhost:8080";
 
   const getSeverityIcon = (severity) => {
     switch (severity?.toLowerCase()) {
@@ -198,7 +196,7 @@ function App() {
         marginBottom: '24px'
       }}>
         <h2 style={{ fontSize: '20px', marginBottom: '16px' }}>
-          🔔 Report New Incident
+          📝 Report New Incident
         </h2>
         
         <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
@@ -304,7 +302,7 @@ function App() {
         
         {filteredIncidents.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px', color: '#94a3b8' }}>
-            <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>📁</p>
+            <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>🔍</p>
             <p>No incidents found</p>
           </div>
         ) : (

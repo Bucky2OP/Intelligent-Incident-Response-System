@@ -33,6 +33,27 @@ type Incident struct {
 var db *sql.DB
 
 /* -----------------------------
+   CORS Middleware
+------------------------------*/
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Allow requests from any origin (for development)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		
+		next.ServeHTTP(w, r)
+	})
+}
+
+/* -----------------------------
    DB Helpers
 ------------------------------*/
 
@@ -202,9 +223,14 @@ func main() {
 	connectDB()
 
 	router := mux.NewRouter()
+	
+	// Add routes
 	router.HandleFunc("/ingest", ingestHandler).Methods("POST")
 	router.HandleFunc("/incidents", incidentsHandler).Methods("GET")
+	
+	// Wrap router with CORS middleware
+	handler := corsMiddleware(router)
 
 	log.Println("Backend running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }

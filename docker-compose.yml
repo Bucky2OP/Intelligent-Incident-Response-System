@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: incidents-ai
     ports:
-      - "5000:5000"
+      - "5001:5000"
     networks:
       - incident-network
     restart: unless-stopped
